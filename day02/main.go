@@ -95,7 +95,7 @@ func BruteForceSearch(number int, numberStr string, digits int, verbose bool) in
 	approvedPattern := ""
 
 	//Only checking half into the number, since a sequence cannot exist with more than that
-	for i := 1; i <= digits/2; i++ {
+	for i := 1; i <= digits/2; i++ { // "i" is the size of the candidate patterns
 		if numberStr == approvedPattern {
 			break
 		}
