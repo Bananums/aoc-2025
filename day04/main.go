@@ -145,16 +145,6 @@ func solvePart2(lines []string) int {
 	a := len(lines)    //Matrix height
 	b := len(lines[0]) //Matrix width
 
-	validA := [10000]int{}
-	for i := range validA {
-		validA[i] = -1
-	}
-	validB := [10000]int{}
-	for i := range validB {
-		validB[i] = -1
-	}
-	validPosition := 0
-
 	data := make([]byte, a*b)
 	matrix := make([][]byte, a)
 	for i := 0; i < a; i++ {
@@ -175,11 +165,43 @@ func solvePart2(lines []string) int {
 	}
 	// Generate an indexable matrix End ------------------------------------------------------------
 
+	totalScrolls := 0
+	out := matrix
+	scrolls := 1
+	for scrolls > 0 {
+		out, scrolls = RemoveScrolls(out)
+		totalScrolls += scrolls
+	}
+
+	fmt.Println("-----------")
+	for i := 0; i < a; i++ {
+		//	fmt.Println(string(out[i]))
+	}
+
+	return totalScrolls
+}
+
+func RemoveScrolls(matrix [][]byte) ([][]byte, int) {
+
+	a := len(matrix)
+	b := len(matrix[0])
+
+	validA := [10000]int{}
+	for i := range validA {
+		validA[i] = -1
+	}
+	validB := [10000]int{}
+	for i := range validB {
+		validB[i] = -1
+	}
+	validPosition := 0
+
 	validScrolls := 0
 	for i := 0; i < a; i++ {
 		for k := 0; k < b; k++ {
-			scrollCount := 0
+			scrollCount := -1
 			if matrix[i][k] == '@' {
+				scrollCount = 0
 				if i != 0 {
 					if matrix[i-1][k] == '@' {
 						scrollCount++
@@ -243,14 +265,9 @@ func solvePart2(lines []string) int {
 		w := validA[i]
 		l := validB[i]
 		if w != -1 && l != -1 {
-			matrix[w][l] = 'x'
+			matrix[w][l] = '.'
 		}
 	}
 
-	fmt.Println("-----------")
-	for i := 0; i < a; i++ {
-		//fmt.Println(string(matrix[i]))
-	}
-
-	return validScrolls
+	return matrix, validScrolls
 }
