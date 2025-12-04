@@ -18,21 +18,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Part 1:", solvePart1(lines))
+	fmt.Println("Part 1:", solvePart1(lines, false))
 	fmt.Println("Part 2:", solvePart2(lines))
 }
 
-func solvePart1(lines []string) int {
+func solvePart1(lines []string, verbose bool) int {
 
 	// Generate an indexable matrix Start ------------------------------------------------------------
 	a := len(lines)    //Matrix height
 	b := len(lines[0]) //Matrix width
 
-	validA := [10000]int{}
+	validA := [2000]int{}
 	for i := range validA {
 		validA[i] = -1
 	}
-	validB := [10000]int{}
+	validB := [2000]int{}
 	for i := range validB {
 		validB[i] = -1
 	}
@@ -50,11 +50,10 @@ func solvePart1(lines []string) int {
 		}
 	}
 
-	fmt.Println("Matrix height:", len(matrix), "matrix width:", len(matrix[0]))
-	fmt.Println("Index [2][5] should be '.' -", string(matrix[2][5]))
-	fmt.Println("Initial matrix")
-	for i := 0; i < a; i++ {
-		//	fmt.Println(string(matrix[i]))
+	if verbose {
+		for i := 0; i < a; i++ {
+			fmt.Println(string(matrix[i]))
+		}
 	}
 	// Generate an indexable matrix End ------------------------------------------------------------
 
@@ -131,17 +130,29 @@ func solvePart1(lines []string) int {
 		}
 	}
 
-	fmt.Println("-----------")
-	for i := 0; i < a; i++ {
-		//fmt.Println(string(matrix[i]))
+	if verbose {
+		fmt.Println("-----------")
+		for i := 0; i < a; i++ {
+			fmt.Println(string(matrix[i]))
+		}
 	}
 
 	return validScrolls
 }
 
 func solvePart2(lines []string) int {
+	matrix := GenerateBaseMatrix(lines)
+	totalScrolls := 0
+	scrolls := 1
+	for scrolls > 0 {
+		matrix, scrolls = RemoveScrolls(matrix)
+		totalScrolls += scrolls
+	}
 
-	// Generate an indexable matrix Start ------------------------------------------------------------
+	return totalScrolls
+}
+
+func GenerateBaseMatrix(lines []string) [][]byte {
 	a := len(lines)    //Matrix height
 	b := len(lines[0]) //Matrix width
 
@@ -157,28 +168,7 @@ func solvePart2(lines []string) int {
 		}
 	}
 
-	fmt.Println("Matrix height:", len(matrix), "matrix width:", len(matrix[0]))
-	fmt.Println("Index [2][5] should be '.' -", string(matrix[2][5]))
-	fmt.Println("Initial matrix")
-	for i := 0; i < a; i++ {
-		//	fmt.Println(string(matrix[i]))
-	}
-	// Generate an indexable matrix End ------------------------------------------------------------
-
-	totalScrolls := 0
-	out := matrix
-	scrolls := 1
-	for scrolls > 0 {
-		out, scrolls = RemoveScrolls(out)
-		totalScrolls += scrolls
-	}
-
-	fmt.Println("-----------")
-	for i := 0; i < a; i++ {
-		//	fmt.Println(string(out[i]))
-	}
-
-	return totalScrolls
+	return matrix
 }
 
 func RemoveScrolls(matrix [][]byte) ([][]byte, int) {
@@ -186,11 +176,11 @@ func RemoveScrolls(matrix [][]byte) ([][]byte, int) {
 	a := len(matrix)
 	b := len(matrix[0])
 
-	validA := [10000]int{}
+	validA := [2000]int{}
 	for i := range validA {
 		validA[i] = -1
 	}
-	validB := [10000]int{}
+	validB := [2000]int{}
 	for i := range validB {
 		validB[i] = -1
 	}
