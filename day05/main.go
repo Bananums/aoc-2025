@@ -20,11 +20,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Part 1:", solvePart1(idRanges, ingredients))
+	fmt.Println("Part 1:", solvePart1(idRanges, ingredients, false))
 	fmt.Println("Part 2:", solvePart2(idRanges, ingredients))
 }
 
-func solvePart1(idRanges []string, ingredients []string) int {
+func solvePart1(idRanges []string, ingredients []string, verbose bool) int {
 	freshIngredients := 0
 
 	for _, ingredient := range ingredients {
@@ -37,16 +37,23 @@ func solvePart1(idRanges []string, ingredients []string) int {
 			}
 
 			if ingredientAsInt < idStart {
-				fmt.Println("[", idStart, "-", idEnd, "] - ", ingredientAsInt, " - spoiled")
+				if verbose {
+					fmt.Println("[", idStart, "-", idEnd, "] - ", ingredientAsInt, " - spoiled")
+				}
 				continue
 			}
 
 			if ingredientAsInt > idEnd {
-				fmt.Println("[", idStart, "-", idEnd, "] - ", ingredientAsInt, " - spoiled")
+				if verbose {
+					fmt.Println("[", idStart, "-", idEnd, "] - ", ingredientAsInt, " - spoiled")
+				}
 				continue
 			}
 
-			fmt.Println("[", idStart, "-", idEnd, "] - ", ingredientAsInt, " - fresh")
+			if verbose {
+				fmt.Println("[", idStart, "-", idEnd, "] - ", ingredientAsInt, " - fresh")
+			}
+
 			freshIngredients++
 			break
 		}
@@ -57,7 +64,8 @@ func solvePart1(idRanges []string, ingredients []string) int {
 }
 
 func solvePart2(idRanges []string, ingredients []string) int {
-
+	// Read this. Figure out how to implement Hasmap. Then blast through with lookup
+	// https://medium.com/@hillman.t.y/designing-a-hashmap-from-scratch-51870851406f
 	return 0
 }
 
