@@ -75,7 +75,7 @@ func solvePart1(lines []string, verbose bool) int {
 }
 
 func solvePart2(lines []string) int {
-
+	sum := 0
 	splits := make([][]string, len(lines))
 
 	for i, line := range lines {
@@ -89,14 +89,11 @@ func solvePart2(lines []string) int {
 
 	width := len(splits[0])
 	height := len(splits)
-	//fmt.Println("width:", width, "height:", height)
 
 	rows := make([][]string, width)
 	for i := range rows {
 		rows[i] = make([]string, height)
 	}
-
-	//fmt.Println("rows height:", width, "rows width:", height)
 
 	for i := 0; i < height; i++ {
 		for k := 0; k < width; k++ {
@@ -134,17 +131,37 @@ func solvePart2(lines []string) int {
 		}
 
 		fmt.Println("printing columns")
-		//valueStr := []string{} // TODO Make string and then convert to int
+		valueStep := 0
+		_ = valueStep
+		var operatorChar = row[len(row)-1][0]
+		//fmt.Println("operator char", string(operatorChar))
+
 		for _, column := range columns {
 			fmt.Println(string(column))
-
+			valueStr := ""
 			for _, value := range column {
-				fmt.Println(string(value))
+				//fmt.Println(string(value))
+				if value != '.' {
+					valueStr += string(value)
+				}
+
 			}
 
+			valueMed, _ := strconv.Atoi(valueStr)
+			if operatorChar == '*' {
+				if valueStep == 0 {
+					valueStep = 1
+				}
+				valueStep *= valueMed
+			} else {
+				valueStep += valueMed
+			}
+
+			fmt.Println("Value: ", valueStr, ". ValueMed: ", valueMed, ". ValueStep: ", valueStep)
+			sum += valueStep
 		}
 
 	}
 
-	return 0
+	return sum
 }
