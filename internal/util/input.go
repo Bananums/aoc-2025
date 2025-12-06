@@ -8,12 +8,14 @@ import (
 )
 
 func LoadFile(filename string, fileSystem embed.FS) ([]string, error) {
-	bytes, err := fileSystem.ReadFile(filename)
+	bytesLines, err := fileSystem.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	return strings.Split(strings.TrimSpace(string(bytes)), "\n"), nil
+	stringLines := strings.TrimSpace(string(bytesLines))
+
+	return strings.Split(stringLines, "\n"), nil
 }
 
 func LoadCommaFile(filename string, fileSystem embed.FS) ([]string, error) {
