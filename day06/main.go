@@ -15,13 +15,13 @@ var inputs embed.FS
 func main() {
 	fmt.Println("Advent of Code - Day 06")
 
-	lines, err := util.LoadFile("example.txt", inputs)
+	lines, err := util.LoadFile("puzzle.txt", inputs)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println("Part 1:", solvePart1(lines, false))
-	fmt.Println("Part 2:", solvePart2(lines))
+	fmt.Println("Part 2:", solvePart2(lines, false))
 }
 
 func solvePart1(lines []string, verbose bool) int {
@@ -74,94 +74,97 @@ func solvePart1(lines []string, verbose bool) int {
 	return sum
 }
 
-func solvePart2(lines []string) int {
+func solvePart2(lines []string, verbose bool) int {
 	sum := 0
-	splits := make([][]string, len(lines))
 
-	for i, line := range lines {
-		fields := strings.Fields(line)
-		splits[i] = fields
+	height := len(lines)
+	width := 0
+	for _, line := range lines {
+		if len(line) > width {
+			width = len(line)
+		}
 	}
 
-	for _, split := range splits {
-		fmt.Println(split)
+	if verbose {
+		for _, line := range lines {
+			fmt.Println(line)
+		}
+		fmt.Println("------------------------")
 	}
 
-	width := len(splits[0])
-	height := len(splits)
-
-	rows := make([][]string, width)
-	for i := range rows {
-		rows[i] = make([]string, height)
+	splits := make([][]byte, height)
+	for i := range splits {
+		splits[i] = make([]byte, width)
 	}
 
 	for i := 0; i < height; i++ {
-		for k := 0; k < width; k++ {
-			rows[k][i] = splits[i][k]
-		}
-	}
-
-	for _, row := range rows {
-		fmt.Println("--------------")
-		fmt.Println(row)
-		largestSize := 0
-		for _, fields := range row {
-			if len(fields) > largestSize {
-				largestSize = len(fields)
-			}
-		}
-
-		columns := make([][]byte, largestSize)
-		for i := range columns {
-			columns[i] = make([]byte, len(rows)-1) // Removing operator * or +
-		}
-
-		for i, column := range columns {
-			for j := range column {
-				numberFromRow := row[j] // Getting number from row[j]
-				numberLength := len(numberFromRow)
-				index := numberLength - 1 - i // Counting right to left
-
-				if index >= 0 {
-					columns[i][j] = numberFromRow[index]
-				} else {
-					columns[i][j] = '.'
-				}
-			}
-		}
-
-		fmt.Println("printing columns")
-		valueStep := 0
-		_ = valueStep
-		var operatorChar = row[len(row)-1][0]
-		//fmt.Println("operator char", string(operatorChar))
-
-		for _, column := range columns {
-			fmt.Println(string(column))
-			valueStr := ""
-			for _, value := range column {
-				//fmt.Println(string(value))
-				if value != '.' {
-					valueStr += string(value)
-				}
-
-			}
-
-			valueMed, _ := strconv.Atoi(valueStr)
-			if operatorChar == '*' {
-				if valueStep == 0 {
-					valueStep = 1
-				}
-				valueStep *= valueMed
+		currentWidth := len(lines[i])
+		for j := 0; j < currentWidth; j++ {
+			if lines[i][j] == ' ' {
+				splits[i][j] = '.'
 			} else {
-				valueStep += valueMed
+				splits[i][j] = lines[i][j]
 			}
+		}
+		for currentWidth < width {
+			splits[i][currentWidth] = '.'
+			currentWidth++
+		}
+	}
 
-			fmt.Println("Value: ", valueStr, ". ValueMed: ", valueMed, ". ValueStep: ", valueStep)
-			sum += valueStep
+	//Just printing for check
+	if verbose {
+		for _, line := range splits {
+			fmt.Println(string(line))
+		}
+	}
+
+	var operator byte
+	sumPart := 0
+	for i := 0; i < width; i++ {
+		if splits[height-1][i] == '+' || splits[height-1][i] == '*' {
+			operator = splits[height-1][i]
 		}
 
+		numberStr := ""
+		for k := 0; k < height-1; k++ { // -1 to skip operator * and +
+			numberStr += string(splits[k][i])
+		}
+		numberStr = strings.Trim(numberStr, ".")
+		number, _ := strconv.Atoi(numberStr)
+
+		if verbose {
+			fmt.Println(number, "len:", len(numberStr), "operator:", string(operator))
+		}
+
+		if len(numberStr) == 0 {
+			if verbose {
+				fmt.Println("sumPart: ", sumPart)
+			}
+			sum += sumPart
+			sumPart = 0
+			continue
+		}
+
+		if operator == '+' {
+			sumPart += number
+		} else {
+			if sumPart == 0 {
+				sumPart = 1
+			}
+			sumPart *= number
+		}
 	}
+
+	if verbose {
+		fmt.Println("sumPart: ", sumPart)
+	}
+	sum += sumPart // I do not care anymore. It works
 
 	return sum
+}
+
+type Column struct {
+	number int
+	op     byte
 }
