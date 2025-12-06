@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -19,65 +20,131 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Part 1:", solvePart1(lines))
+	fmt.Println("Part 1:", solvePart1(lines, false))
 	fmt.Println("Part 2:", solvePart2(lines))
 }
 
-func solvePart1(lines []string) int {
+func solvePart1(lines []string, verbose bool) int {
+	splits := make([][]string, len(lines))
 
-	test1 := string("bob")
+	for i, line := range lines {
+		fields := strings.Fields(line)
 
-	fmt.Println(test1)
-	fmt.Println("----------------")
+		if verbose {
+			fmt.Println(fields)
+		}
 
-	test2 := make([]string, 3)
-	test2[0] = "bob"
-	test2[1] = "alex"
-	test2[2] = "john"
-
-	for _, yep := range test2 {
-		fmt.Println(yep)
-	}
-	fmt.Println("----------------")
-
-	var test3 [3][3]string
-
-	//test3 := make([][]string, 3)
-	//for i := range test3 {
-	//	test3[i] = make([]string, 3)
-	//}
-
-	test3[0][0] = "bob1"
-	test3[0][1] = "bob2"
-	test3[0][2] = "bob3"
-	test3[1][0] = "alex1"
-	test3[1][1] = "alex2"
-	test3[1][2] = "alex3"
-	test3[2][0] = "john1"
-	test3[2][1] = "john2"
-	test3[2][2] = "john3"
-
-	for _, yep := range test3 {
-		fmt.Println(yep)
+		splits[i] = fields
 	}
 
-	fmt.Println("----------------")
+	a := len(splits)
+	b := len(splits[0])
+
+	transposed := make([][]string, b)
+	for i := range b {
+		transposed[i] = make([]string, a)
+	}
+
+	shift := 0
+	for shift < b {
+		for i := range a {
+			transposed[shift][i] = splits[i][shift]
+		}
+		shift++
+	}
+
+	sum := 0
+	for _, fields := range transposed {
+		calculationLength := len(fields) - 1
+		taskValue := 0
+		for i := 0; i < calculationLength; i++ {
+			value, _ := strconv.Atoi(fields[i])
+			if fields[len(fields)-1] == "*" {
+				if taskValue == 0 {
+					taskValue = 1
+				}
+				taskValue *= value
+			} else {
+				taskValue += value
+			}
+		}
+		sum += taskValue
+	}
+
+	return sum
+}
+
+func solvePart2(lines []string) int {
 
 	splits := make([][]string, len(lines))
 
 	for i, line := range lines {
 		fields := strings.Fields(line)
-		fmt.Println(fields)
 		splits[i] = fields
 	}
 
-	for _, fields := range splits {
-		fmt.Println(fields)
+	for _, split := range splits {
+		fmt.Println(split)
 	}
 
-	return 0
-}
+	width := len(splits[0])
+	height := len(splits)
+	//fmt.Println("width:", width, "height:", height)
 
-func solvePart2(lines []string) int {
+	rows := make([][]string, width)
+	for i := range rows {
+		rows[i] = make([]string, height)
+	}
+
+	//fmt.Println("rows height:", width, "rows width:", height)
+
+	for i := 0; i < height; i++ {
+		for k := 0; k < width; k++ {
+			rows[k][i] = splits[i][k]
+		}
+	}
+
+	for _, row := range rows {
+		fmt.Println("--------------")
+		fmt.Println(row)
+		largestSize := 0
+		for _, fields := range row {
+			if len(fields) > largestSize {
+				largestSize = len(fields)
+			}
+		}
+
+		columns := make([][]byte, largestSize)
+		for i := range columns {
+			columns[i] = make([]byte, len(rows)-1) // Removing operator * or +
+		}
+
+		for i, column := range columns {
+			for j := range column {
+				numberFromRow := row[j] // Getting number from row[j]
+				numberLength := len(numberFromRow)
+				index := numberLength - 1 - i // Counting right to left
+
+				if index >= 0 {
+					columns[i][j] = numberFromRow[index]
+				} else {
+					columns[i][j] = '.'
+				}
+			}
+		}
+
+		fmt.Println("printing columns")
+		//valueStr := []string{} // TODO Make string and then convert to int
+		for _, column := range columns {
+			fmt.Println(string(column))
+
+			for _, value := range column {
+				fmt.Println(string(value))
+			}
+
+		}
+
+	}
+
 	return 0
 }
