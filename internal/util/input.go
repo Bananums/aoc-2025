@@ -19,11 +19,11 @@ func LoadFile(filename string, fileSystem embed.FS) ([]string, error) {
 }
 
 func LoadCommaFile(filename string, fileSystem embed.FS) ([]string, error) {
-	bytes, err := fileSystem.ReadFile(filename)
+	bytesLines, err := fileSystem.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	return strings.Split(strings.TrimSpace(string(bytes)), ","), nil
+	return strings.Split(strings.TrimSpace(string(bytesLines)), ","), nil
 }
 
 func LoadSplitFile(filename string, fileSystem embed.FS) ([]string, []string, error) {

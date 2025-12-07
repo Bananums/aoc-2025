@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-//go:embed example.txt
+//go:embed example.txt puzzle.txt
 var inputs embed.FS
 
 func main() {
@@ -18,14 +18,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Part 1:", solvePart1(lines))
-	fmt.Println("Part 2:", solvePart2(lines))
+	fmt.Println("Part 1:", solvePart1(lines, false))
+	fmt.Println("Part 2:", solvePart2(lines, false))
 }
 
-func solvePart1(lines []string) int {
+func solvePart1(lines []string, verbose bool) int {
+	_ = verbose
 	return 0
 }
 
-func solvePart2(lines []string) int {
+func solvePart2(lines []string, verbose bool) int {
+	_ = verbose
 	return 0
 }
