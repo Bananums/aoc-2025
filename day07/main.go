@@ -13,7 +13,7 @@ var inputs embed.FS
 func main() {
 	fmt.Println("Advent of Code - Day 07")
 
-	lines, err := util.LoadFile("puzzle.txt", inputs)
+	lines, err := util.LoadFile("example.txt", inputs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -23,24 +23,24 @@ func main() {
 }
 
 func solvePart1(lines []string, verbose bool) int {
-	_ = verbose
-
 	myLines := toByteLines(lines)
-	for _, line := range myLines {
-		fmt.Println(string(line))
+	startIndex := findStartIndex(myLines[0])
+
+	if verbose {
+		for _, line := range myLines {
+			fmt.Println(string(line))
+		}
+		fmt.Println("+---------------+")
+		fmt.Println(string(myLines[0]))
 	}
 
-	fmt.Println("+---------------+")
-
-	startIndex := findStartIndex(myLines[0])
-	fmt.Println("Start index:", startIndex)
-
-	fmt.Println(string(myLines[0]))
 	splits := 0
 	for i := 1; i < len(myLines); i++ {
 		if i == 1 {
 			myLines[i][startIndex] = '|'
-			fmt.Println(string(myLines[i]))
+			if verbose {
+				fmt.Println(string(myLines[i]))
+			}
 			continue
 		}
 		if i%2 == 0 { // Even number
@@ -63,7 +63,9 @@ func solvePart1(lines []string, verbose bool) int {
 			}
 		}
 
-		fmt.Println(string(myLines[i]))
+		if verbose {
+			fmt.Println(string(myLines[i]))
+		}
 	}
 
 	return splits
