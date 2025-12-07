@@ -90,7 +90,6 @@ func solvePart2(lines []string, verbose bool) int {
 		fmt.Println(string(myLines[0]))
 	}
 
-	splits := 0
 	for i := 1; i < len(myLines); i++ {
 		if i == 1 {
 			myLines[i][startIndex] = '|'
@@ -110,26 +109,11 @@ func solvePart2(lines []string, verbose bool) int {
 						if i == 2 {
 							matches = 1
 						}
-
-						a := 0
-						for i-a > 0 {
-							if myLines[i-a][k-1] == '^' {
-								if myLines[i-a-1][k] != '|' {
-									matches += pascalGrid[i-a][k-1]
-									break
-								}
-							}
-							a++
+						if myLines[i-2][k-1] == '^' {
+							matches += pascalGrid[i-2][k-1]
 						}
-						a = 0
-						for i-a > 0 {
-							if myLines[i-a][k+1] == '^' {
-								if myLines[i-a-1][k] != '|' {
-									matches += pascalGrid[i-a][k+1]
-									break
-								}
-							}
-							a++
+						if myLines[i-2][k+1] == '^' {
+							matches += pascalGrid[i-2][k+1]
 						}
 						pascalGrid[i][k] = matches
 					} else {
@@ -151,11 +135,20 @@ func solvePart2(lines []string, verbose bool) int {
 	}
 
 	if verbose {
-		for _, line := range pascalGrid {
-			fmt.Println(line)
-			for _, value := range line {
-				splits += value
+		for i, line := range pascalGrid {
+			if i == 0 {
+				continue
 			}
+			if i%2 == 0 {
+				fmt.Println(line)
+			}
+		}
+	}
+
+	splits := 0
+	for _, line := range pascalGrid {
+		for _, value := range line {
+			splits += value
 		}
 	}
 
