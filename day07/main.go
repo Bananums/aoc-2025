@@ -13,7 +13,7 @@ var inputs embed.FS
 func main() {
 	fmt.Println("Advent of Code - Day 07")
 
-	lines, err := util.LoadFile("example.txt", inputs)
+	lines, err := util.LoadFile("puzzle.txt", inputs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,11 +45,13 @@ func solvePart1(lines []string, verbose bool) int {
 		}
 		if i%2 == 0 { // Even number
 			for k, char := range string(myLines[i]) {
-				if char == '^' {
-					if myLines[i-1][k] == '|' {
+				if myLines[i-1][k] == '|' {
+					if char == '^' {
 						myLines[i][k-1] = '|'
 						myLines[i][k+1] = '|'
 						splits++
+					} else {
+						myLines[i][k] = '|'
 					}
 				}
 			}
