@@ -13,7 +13,7 @@ var inputs embed.FS
 func main() {
 	fmt.Println("Advent of Code - Day 07")
 
-	lines, err := util.LoadFile("example.txt", inputs)
+	lines, err := util.LoadFile("puzzle.txt", inputs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -109,11 +109,26 @@ func solvePart2(lines []string, verbose bool) int {
 						if i == 2 {
 							matches = 1
 						}
-						if myLines[i-2][k-1] == '^' {
-							matches += pascalGrid[i-2][k-1]
+
+						a := 0
+						for i-a > 0 {
+							if myLines[i-a][k-1] == '^' {
+								matches += pascalGrid[i-a][k-1]
+							}
+							if myLines[i-a-1][k] != '|' {
+								break
+							}
+							a++
 						}
-						if myLines[i-2][k+1] == '^' {
-							matches += pascalGrid[i-2][k+1]
+						a = 0
+						for i-a > 0 {
+							if myLines[i-a][k+1] == '^' {
+								matches += pascalGrid[i-a][k+1]
+							}
+							if myLines[i-a-1][k] != '|' {
+								break
+							}
+							a++
 						}
 						pascalGrid[i][k] = matches
 					} else {
@@ -152,7 +167,7 @@ func solvePart2(lines []string, verbose bool) int {
 		}
 	}
 
-	return splits
+	return splits + 1 //Hmmm
 }
 
 func toByteLines(lines []string) [][]byte {
