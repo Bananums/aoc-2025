@@ -19,10 +19,11 @@ func main() {
 	}
 
 	fmt.Println("Part 1:", solvePart1(lines, false))
-	fmt.Println("Part 2:", solvePart2(lines, false))
+	fmt.Println("Part 2:", solvePart2(lines, true))
 }
 
 func solvePart1(lines []string, verbose bool) int {
+
 	myLines := toByteLines(lines)
 	startIndex := findStartIndex(myLines[0])
 
@@ -72,7 +73,93 @@ func solvePart1(lines []string, verbose bool) int {
 }
 
 func solvePart2(lines []string, verbose bool) int {
-	return 0
+	myLines := toByteLines(lines)
+	pascalGrid := makeIntGrid(lines)
+	startIndex := findStartIndex(myLines[0])
+
+	if verbose {
+		for _, line := range myLines {
+			fmt.Println(string(line))
+		}
+		fmt.Println("+---------------+")
+		for _, line := range pascalGrid {
+			fmt.Println(line)
+		}
+		fmt.Println("+---------------+")
+
+		fmt.Println(string(myLines[0]))
+	}
+
+	splits := 0
+	for i := 1; i < len(myLines); i++ {
+		if i == 1 {
+			myLines[i][startIndex] = '|'
+			if verbose {
+				fmt.Println(string(myLines[i]))
+			}
+			continue
+		}
+		if i%2 == 0 { // Even number
+			for k, char := range string(myLines[i]) {
+				if myLines[i-1][k] == '|' {
+					if char == '^' {
+						myLines[i][k-1] = '|'
+						myLines[i][k+1] = '|'
+
+						matches := 0
+						if i == 2 {
+							matches = 1
+						}
+
+						a := 0
+						for i-a > 0 {
+							if myLines[i-a][k-1] == '^' {
+								if myLines[i-a-1][k] != '|' {
+									matches += pascalGrid[i-a][k-1]
+									break
+								}
+							}
+							a++
+						}
+						a = 0
+						for i-a > 0 {
+							if myLines[i-a][k+1] == '^' {
+								if myLines[i-a-1][k] != '|' {
+									matches += pascalGrid[i-a][k+1]
+									break
+								}
+							}
+							a++
+						}
+						pascalGrid[i][k] = matches
+					} else {
+						myLines[i][k] = '|'
+					}
+				}
+			}
+		} else {
+			for k := range string(myLines[i]) {
+				if myLines[i-1][k] == '|' {
+					myLines[i][k] = '|'
+				}
+			}
+		}
+
+		if verbose {
+			fmt.Println(string(myLines[i]))
+		}
+	}
+
+	if verbose {
+		for _, line := range pascalGrid {
+			fmt.Println(line)
+			for _, value := range line {
+				splits += value
+			}
+		}
+	}
+
+	return splits
 }
 
 func toByteLines(lines []string) [][]byte {
@@ -93,4 +180,12 @@ func findStartIndex(line []byte) int {
 		}
 	}
 	return startIndex
+}
+
+func makeIntGrid(lines []string) [][]int {
+	out := make([][]int, len(lines))
+	for i := range lines {
+		out[i] = make([]int, len(lines[i]))
+	}
+	return out
 }
