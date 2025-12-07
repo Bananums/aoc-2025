@@ -13,7 +13,7 @@ var inputs embed.FS
 func main() {
 	fmt.Println("Advent of Code - Day 07")
 
-	lines, err := util.LoadFile("puzzle.txt", inputs)
+	lines, err := util.LoadFile("example.txt", inputs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -167,7 +167,8 @@ func solvePart2(lines []string, verbose bool) int {
 		}
 	}
 
-	return splits + 1 //Hmmm
+	initialTimelines := 1 //Since only one timeline starts from the one S
+	return splits + initialTimelines
 }
 
 func toByteLines(lines []string) [][]byte {
