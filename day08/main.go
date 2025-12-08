@@ -81,6 +81,8 @@ type Junction struct {
 }
 
 func getKey(i int, j int) [2]int {
+	//Makes sure pairs are made symmetrical
+	// (i, j) and (j, i) should count as the same pair
 	if i < j {
 		return [2]int{i, j}
 	}
