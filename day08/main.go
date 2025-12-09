@@ -16,16 +16,24 @@ var inputs embed.FS
 func main() {
 	fmt.Println("Advent of Code - Day 08")
 
-	lines, err := util.LoadFile("puzzle.txt", inputs)
+	filename := "puzzle.txt"
+
+	lines, err := util.LoadFile(filename, inputs)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Part 1:", solvePart1(lines, false))
+	if filename == "example.txt" {
+		fmt.Println("Part 1:", solvePart1(lines, false, 10))
+	} else {
+		fmt.Println("Part 1:", solvePart1(lines, false, 1000))
+	}
+
 	fmt.Println("Part 2:", solvePart2(lines, false))
+
 }
 
-func solvePart1(lines []string, verbose bool) int {
+func solvePart1(lines []string, verbose bool, checks int) int {
 	_ = verbose
 
 	junctions := make([]Junction, len(lines))
@@ -34,7 +42,7 @@ func solvePart1(lines []string, verbose bool) int {
 	}
 
 	used := make(map[[2]int]bool)
-	linkChecks := 1000
+	linkChecks := checks
 	nextGridId := 1
 
 	for check := 0; check < linkChecks; check++ {
@@ -108,11 +116,11 @@ func solvePart1(lines []string, verbose bool) int {
 	var grids [1000]int
 
 	for _, junction := range junctions {
-		fmt.Println(junction)
+		//fmt.Println(junction)
 		grids[junction.grid] += 1
 	}
 
-	fmt.Println(grids)
+	//fmt.Println(grids)
 
 	val1 := 0
 	val2 := 0
@@ -134,14 +142,110 @@ func solvePart1(lines []string, verbose bool) int {
 
 	}
 
-	fmt.Println(val1, val2, val3)
+	//fmt.Println(val1, val2, val3)
 
 	return val1 * val2 * val3
 }
 
 func solvePart2(lines []string, verbose bool) int {
+	//Can use union–find (DSU) for a cleaner implementation. Look into this
 	_ = verbose
-	return 0
+
+	junctions := make([]Junction, len(lines))
+	for i, line := range lines {
+		junctions[i] = makeJunction(line)
+	}
+
+	used := make(map[[2]int]bool)
+	nextGridId := 1
+
+	circuits := len(junctions)
+	lastMerge := [2]int{-1, -1}
+
+	for check := 0; circuits > 1; check++ {
+		minDistance := math.MaxFloat64
+		currentMinLink := [2]int{-1, -1}
+		for i := range junctions {
+			for j := range junctions {
+				if j == i {
+					continue //No point in checking self
+				}
+
+				k := getKey(i, j)
+				if used[k] {
+					//fmt.Println("Skipping", k, "-", junctions[i], junctions[j])
+					continue
+				}
+
+				distance := getDistance(junctions[j], junctions[i])
+				//fmt.Println(distance, " - ", junctions[i], junctions[j])
+				if distance < minDistance {
+					minDistance = distance
+					currentMinLink = [2]int{i, j}
+				}
+			}
+		}
+
+		nearestIndexI := currentMinLink[0]
+		nearestIndexJ := currentMinLink[1]
+
+		if nearestIndexI == -1 {
+			// no valid edge left
+			break
+		}
+		used[getKey(nearestIndexI, nearestIndexJ)] = true
+
+		gi := junctions[nearestIndexI].grid
+		gj := junctions[nearestIndexJ].grid
+
+		switch {
+		case gi == 0 && gj == 0:
+			// New circuit with two junctions
+			junctions[nearestIndexI].grid = nextGridId
+			junctions[nearestIndexJ].grid = nextGridId
+			nextGridId++
+			circuits--
+			lastMerge = currentMinLink
+
+		case gi != 0 && gj == 0:
+			// Add J to I's circuit
+			junctions[nearestIndexJ].grid = gi
+			circuits--
+			lastMerge = currentMinLink
+
+		case gi == 0 && gj != 0:
+			// Add I to J's circuit
+			junctions[nearestIndexI].grid = gj
+			circuits--
+			lastMerge = currentMinLink
+
+		case gi != 0 && gj != 0 && gi != gj:
+			// MERGE two circuits
+			//fmt.Println("Mering:", junctions[gi], junctions[gj])
+			oldId := gj
+			newId := gi
+			for idx := range junctions {
+				if junctions[idx].grid == oldId {
+					junctions[idx].grid = newId
+				}
+			}
+			circuits--
+			lastMerge = currentMinLink
+
+		case gi == gj:
+			// Already in the same circuit: do nothing to grids
+			// but still counts as one of the 10
+		}
+
+		//fmt.Println("Min:", minDistance, junctions[currentMinLink[0]], junctions[currentMinLink[1]])
+	}
+
+	if lastMerge[0] != -1 {
+		fmt.Println("Last merge that connects all junctions:",
+			junctions[lastMerge[0]], junctions[lastMerge[1]])
+	}
+
+	return int(junctions[lastMerge[0]].x * junctions[lastMerge[1]].x)
 }
 
 type Junction struct {
