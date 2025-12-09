@@ -16,7 +16,7 @@ var inputs embed.FS
 func main() {
 	fmt.Println("Advent of Code - Day 08")
 
-	lines, err := util.LoadFile("example.txt", inputs)
+	lines, err := util.LoadFile("puzzle.txt", inputs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,10 +34,8 @@ func solvePart1(lines []string, verbose bool) int {
 	}
 
 	used := make(map[[2]int]bool)
-	linkChecks := 10
+	linkChecks := 1000
 	nextGridId := 1
-
-	_ = used
 
 	for check := 0; check < linkChecks; check++ {
 		minDistance := math.MaxFloat64
@@ -47,9 +45,11 @@ func solvePart1(lines []string, verbose bool) int {
 				if j == i {
 					continue //No point in checking self
 				}
+
 				k := getKey(i, j)
 				if used[k] {
-					fmt.Println("Skipping", k, "-", junctions[i], junctions[j])
+					//fmt.Println("Skipping", k, "-", junctions[i], junctions[j])
+					continue
 				}
 
 				distance := getDistance(junctions[j], junctions[i])
@@ -59,13 +59,84 @@ func solvePart1(lines []string, verbose bool) int {
 				}
 			}
 		}
-		junctions[currentMinLink[0]].grid = nextGridId
-		junctions[currentMinLink[1]].grid = nextGridId
-		used[currentMinLink] = true
-		fmt.Println("Min:", minDistance, junctions[currentMinLink[0]], junctions[currentMinLink[1]])
+
+		nearestIndexI := currentMinLink[0]
+		nearestIndexJ := currentMinLink[1]
+
+		if nearestIndexI == -1 {
+			// no valid edge left
+			break
+		}
+		used[getKey(nearestIndexI, nearestIndexJ)] = true
+
+		gi := junctions[nearestIndexI].grid
+		gj := junctions[nearestIndexJ].grid
+
+		switch {
+		case gi == 0 && gj == 0:
+			// New circuit with two junctions
+			junctions[nearestIndexI].grid = nextGridId
+			junctions[nearestIndexJ].grid = nextGridId
+			nextGridId++
+
+		case gi != 0 && gj == 0:
+			// Add J to I's circuit
+			junctions[nearestIndexJ].grid = gi
+
+		case gi == 0 && gj != 0:
+			// Add I to J's circuit
+			junctions[nearestIndexI].grid = gj
+
+		case gi != 0 && gj != 0 && gi != gj:
+			// MERGE two circuits
+			oldId := gj
+			newId := gi
+			for idx := range junctions {
+				if junctions[idx].grid == oldId {
+					junctions[idx].grid = newId
+				}
+			}
+
+		case gi == gj:
+			// Already in the same circuit: do nothing to grids
+			// but still counts as one of the 10
+		}
+
+		//fmt.Println("Min:", minDistance, junctions[currentMinLink[0]], junctions[currentMinLink[1]])
 	}
 
-	return 0
+	var grids [1000]int
+
+	for _, junction := range junctions {
+		fmt.Println(junction)
+		grids[junction.grid] += 1
+	}
+
+	fmt.Println(grids)
+
+	val1 := 0
+	val2 := 0
+	val3 := 0
+
+	for i := 1; i < len(grids); i++ {
+		value := grids[i]
+
+		if value > val1 {
+			val3 = val2
+			val2 = val1
+			val1 = value
+		} else if value > val2 {
+			val3 = val2
+			val2 = grids[i]
+		} else if value > val3 {
+			val3 = value
+		}
+
+	}
+
+	fmt.Println(val1, val2, val3)
+
+	return val1 * val2 * val3
 }
 
 func solvePart2(lines []string, verbose bool) int {
