@@ -53,6 +53,64 @@ func solvePart2(lines []string, verbose bool) int {
 		fmt.Println("-------------------------------")
 	}
 
+	var grid [9][14]byte
+	for i := range grid {
+		for j := range grid[i] {
+			grid[i][j] = '.'
+		}
+	}
+
+	for _, point := range points {
+		grid[point.Y][point.X] = '#' // Y then X since program goes height then width in direction
+	}
+
+	for i := range points {
+		for j := range points {
+			if points[i] == points[j] {
+				continue
+			}
+
+			if points[i].Y == points[j].Y && (points[j].X-points[i].X) > 0 {
+				fmt.Println(points[i], points[j])
+				for k := points[i].X + 1; k < points[j].X; k++ {
+					grid[points[i].Y][k] = 'X'
+				}
+			}
+
+			if points[i].X == points[j].X && (points[j].Y-points[i].Y) > 0 {
+				fmt.Println(points[i], points[j])
+				for k := points[i].Y + 1; k < points[j].Y; k++ {
+					grid[k][points[i].X] = 'X'
+				}
+			}
+		}
+	}
+
+	for _, row := range grid {
+		fmt.Println(string(row[:]))
+	}
+	fmt.Println("-----------------------------------")
+
+	for i := range grid {
+		for j := range grid[i] {
+			if grid[i][j] == 'X' {
+				for k := j + 1; k < len(grid[i]); k++ {
+					if grid[i][k] == 'X' || grid[i][k] == '#' {
+						break
+					}
+					grid[i][k] = 'I'
+
+				}
+			}
+		}
+	}
+
+	for _, row := range grid {
+		fmt.Println(string(row[:]))
+	}
+
+	fmt.Println("-------------------------------")
+
 	size := 0
 	largestPoint1 := Point{X: 0, Y: 0}
 	largestPoint2 := Point{X: 0, Y: 0}
@@ -87,17 +145,6 @@ func solvePart2(lines []string, verbose bool) int {
 		}
 	}
 
-	var grid [9][14]byte
-	for i := range grid {
-		for j := range grid[i] {
-			grid[i][j] = '.'
-		}
-	}
-
-	for _, point := range points {
-		grid[point.Y][point.X] = '#' // Y then X since program goes height then width in direction
-	}
-
 	//for i := largestPoint1.X; i < largestPoint2.X+1; i++ {
 	//	for j := largestPoint1.Y; j < largestPoint2.Y+1; j++ {
 	//		grid[j][i] = 'O'
@@ -105,29 +152,6 @@ func solvePart2(lines []string, verbose bool) int {
 	//}
 
 	fmt.Println("------------------------------")
-
-	for i := range points {
-		for j := range points {
-			if points[i] == points[j] {
-				continue
-			}
-
-			if points[j].X-points[i].X < 0 {
-				continue
-			}
-
-			if points[i].Y == points[j].Y {
-				fmt.Println(points[i], points[j])
-				for k := points[i].X + 1; k < points[j].X; k++ {
-					grid[j][k] = 'X'
-				}
-			}
-		}
-	}
-
-	for _, row := range grid {
-		fmt.Println(string(row[:]))
-	}
 
 	return size
 }
